@@ -1,0 +1,46 @@
+{
+
+  "_comment" : "===== Run Configurations  =====",
+
+  "attacks": ["pgd"],
+  "datasets": ["mnist"],
+  "adv_training_type": "gf",
+  "mode": "only_adv_training",
+
+
+   "_comment*" : "===== Original Model Configurations =====",
+
+  "mnist_model_name" : "mnist_5x30",
+  "cifar_model_name" : "cifar_keras",
+
+  "_comment**" : "===== Attack Configurations =====",
+
+  "epsilon_mnist" : 0.3,
+  "epsilon_cifar" : 0.0313,
+  "eps_steps_pgd_mnist" : 0.01,
+  "eps_steps_pgd_cifar" :  0.0078,
+  "num_random_init_pgd_mnist": 10,
+  "num_random_init_pgd_cifar": 0,
+  "max_iterations_pgd_mnist": 20,
+  "max_iterations_pgd_cifar": 20,
+
+
+  "_comment***" : "===== Adversarial Training Configurations  =====",
+
+  "adv_ratio_mnist" : 0.5,
+  "adv_ratio_cifar" : 0.5,
+
+  "adv_num_epochs_mnist": 20,
+  "adv_batch_size_mnist": 100,
+
+  "adv_num_epochs_cifar_fgsm": 80,
+  "adv_num_epochs_cifar_pgd": 50,
+
+  "adv_batch_size_cifar": 100,
+
+  "adv_learning_rate_mnist": 1e-3,
+  "adv_learning_rate_cifar": 1e-4
+
+
+
+}
