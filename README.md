@@ -3,8 +3,6 @@
 This page will continue to be updated. For any questions, please contact via email: deepCustomCAE@gmail.com.
 
 
-
-
 ## Overview of Code
 
 The code consists of seven sub-projects. We studied three custom loss functions (LRP, NCE, Suspiciousness) and experiment on MNIST and CIFAR datasets. Since DGN architecture differs based on dataset is used, we decided to split the project into sub-projects to avoid complexity. For each custom loss, we have two sub-projects, namely RobustMNIST and RobustCIFAR. Hence, we have six sub-projects related to CAE based adversarial data generation. One sub-project is for generating FGSM and PGD attack data and FGSM, PGD adversarial training using IBM Robustness Toolbox. 
@@ -96,6 +94,46 @@ For OtherAttacks,
 * put **Additional Files/OtherAttacks/robust_models** into **DeepCustom/OtherAttacks**
 
 
+
 ## Example Usage
 
-It will be available soon.
+You can use Anaconda or Pip to create a virtual environments using `requirements.txt` file provided in the project folder.  After cloning this repository, you can move into one of sub-projects (e.g. LRP/RobustMNIST). At this points, you can train new DGN networks or you can evaluate our pre-trained DGN networks which can be found in [Additional Files](https://drive.google.com/file/d/1P4fXZ-g3gIrWuXmMJknrLFg7pkjR49rS/view?usp=sharing).
+
+**Training DGN Networks**
+
+* Run the following command to start training DGN networks:
+
+    `python train.py`
+
+
+**Generating adversarial data using trained DGN Networks**
+
+* After training DGN networks or download pre-trained DGN networks, you can run the following command to generate adversarial training and adversarial test data:
+
+    `python generate_data.py`
+
+**Applying adversarial training to obtain robust networks using DGN generated adversarial data**
+
+* After generating adversarial training and test data, you can run the following command to apply adversarial training technique offered in [1] to obtain a robust network (DGN-Robust network) which has the same architecture as the target model:
+
+    `python adversarial_training_goodfellow.py`
+
+**Evaluating DGN-Robust, FGSM-Robust and PGD-Robust Networks**
+
+* To evaluate DGN-Robust network, you can run the following command inside **Evalution** folder:
+
+    `python evaluteGoodfellowAT.py`
+
+* To evaluate FGSM and PGD robust networks and target model against FGSM, PGD and DGN generated adversarial test samples, run the following command inside **Evaluation** folder:
+
+    `python evalute2.py`
+ 
+
+
+
+[1] Ian Goodfellow, Jonathon Shlens, and Christian Szegedy. Explaining and harnessing adversarial examples. In International Conference on Learning Representations, 2015.
+
+
+## Generating FGSM and PGD generated adversarial samples and robust models
+
+If you want to generate FGSM and PGD generated adversarial samples and FGSM, PGD robust models, instead of using already generated samples and pre-trained models in [Additional Files](https://drive.google.com/file/d/1P4fXZ-g3gIrWuXmMJknrLFg7pkjR49rS/view?usp=sharing), you can use **OtherAttacks** sub-project. A tutorial on how to use scripts inside this sub-project will be available soon.
