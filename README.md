@@ -1,6 +1,6 @@
 # Fast and Customizable Adversarial Data Generation Using Convolutional Autoencoders
 
-This page will continue to be updated. For any questions, please contact via email: deepCustomCAE@gmail.com.
+For any questions, please contact via email: deepCustomCAE@gmail.com.
 
 
 ## Overview of Code
@@ -127,8 +127,6 @@ You can use Anaconda or Pip to create a virtual environments using `requirements
 * To evaluate FGSM and PGD robust networks and target model against FGSM, PGD and DGN generated adversarial test samples, run the following command inside **Evaluation** folder:
 
     `python evalute2.py`
- 
-
 
 
 [1] Ian Goodfellow, Jonathon Shlens, and Christian Szegedy. Explaining and harnessing adversarial examples. In International Conference on Learning Representations, 2015.
@@ -136,4 +134,46 @@ You can use Anaconda or Pip to create a virtual environments using `requirements
 
 ## Generating FGSM and PGD generated adversarial samples and robust models
 
-If you want to generate FGSM and PGD generated adversarial samples and FGSM, PGD robust models, instead of using already generated samples and pre-trained models in [Additional Files](https://drive.google.com/file/d/1P4fXZ-g3gIrWuXmMJknrLFg7pkjR49rS/view?usp=sharing), you can use **OtherAttacks** sub-project. A tutorial on how to use scripts inside this sub-project will be available soon.
+If you want to generate FGSM and PGD generated adversarial samples and FGSM, PGD robust models, instead of using already generated samples and pre-trained models in [Additional Files](https://drive.google.com/file/d/1P4fXZ-g3gIrWuXmMJknrLFg7pkjR49rS/view?usp=sharing), you can use **OtherAttacks** sub-project. The sub-project has a configuration `config.json` file which has the following parameters:
+
+Running Configurations
+
+* `attacks` : a list of attacks that will be used. Valid elements for the list: 'fgsm' and 'pgd'.
+* `datasets` : a list of datasets that will be used.  Valid elements for the list: 'mnist' and 'cifar'.
+* `adv_training_type` : the adversarial training technique that will be used. Valid parameters are 'gf' or 'default'. When the parameter is 'gf', the adversarial training used in DGNs, is also used in FGSM and PGD adversarial training. When it is 'default', it uses the default adversarial training of IBM adversarial robustness toolbox.
+* `mode` : one of 'only_adv_training', 'only_attack' and 'both'. 'only_adv_training' applies only adversarial training, 'only_attack' generates adversarial samples but does not apply adversarial training. 'both' generates adversarial data and then applies adversarial training using generated adversaial samples.
+
+Original Model Configurations:
+
+* `mnist_model_name` : the model name of MNIST target model
+* `cifar_model_name` : the model name of CIFAR target model
+
+Attack Configurations
+
+* `epsilon_mnist` : the maximum L_infinity distance between original and generated samples for MNIST
+* `epsilon_cifar` : the maximum L_infinity distance between original and generated samples for CIFAR
+* `eps_steps_pgd_mnist` : PGD attack step size (input variation) at each iteration for MNIST
+* `eps_steps_pgd_cifar` :  PGD attack step size (input variation) at each iteration for CIFAR
+* `num_random_init_pgd_mnist` : number of PGD random initialisations within the epsilon ball for MNIST
+* `num_random_init_pgd_cifar` : number of PGD random initialisations within the epsilon ball for CIFAR
+* `max_iterations_pgd_mnist` : the maximum number of PGD iterations for MNIST
+* `max_iterations_pgd_cifar` : the maximum number of PGD iterations for CIFAR
+
+Adversarial Training Configurations
+
+* `adv_ratio_mnist` : a parameter that balances normal and adversarial losses for MNIST adversarial training
+* `adv_ratio_cifar` : a parameter that balances normal and adversarial losses for CIFAR adversarial training
+* `adv_num_epochs_mnist` : number of epochs for MNIST adversarial training
+* `adv_batch_size_mnist` : batch size for MNIST adversarial training
+* `adv_num_epochs_cifar_fgsm` : number of epochs for CIFAR FGSM adversarial training
+* `adv_num_epochs_cifar_pgd` : number of epochs for CIFAR PGD adversarial training
+* `adv_batch_size_cifar` : batch size for CIFAR adversarial training
+* `adv_learning_rate_mnist` : learning rate for MNIST adversarial training
+* `adv_learning_rate_cifar` : learning rate for CIFAR adversarial training
+
+
+### Running the code
+
+After setting desired configurations, you can run the code using following command:
+
+`python Main.py`
