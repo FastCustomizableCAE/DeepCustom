@@ -32,7 +32,7 @@
 
   "_comment****" : "===== Adversarial Train  =====",
 
-  "adv_num_epochs" : 50,
+  "adv_num_epochs" : 1,
   "adv_batch_size" : 100,
   "adv_learning_rate" : 1e-4,
   "adv_decay_step" : 1000,
@@ -42,8 +42,8 @@
 
   "_comment*****" : "===== Evaluation  =====",
 
-  "attack_pgd_step": 20,
-  "defense_pgd_step": 20,
+  "attack_pgd_step": 1,
+  "defense_pgd_step": 1,
   "other_attacks_adv_training_type": "gf"
 
 }

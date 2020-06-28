@@ -6,14 +6,15 @@ import random
 import math
 from keras import datasets, layers, models
 from keras.utils import np_utils
+from keras.datasets import mnist
 from keras.models import model_from_json
 from keras import backend as K
-from keras.datasets import cifar10
 import pickle
 import json
-import os
+import os, shutil
+import logging
 
-
+logging.basicConfig(level=logging.DEBUG)
 
 # MARK:  Plotting Helpers
 
@@ -46,27 +47,34 @@ def plot_loss_custom(pnts1, title1, pnts2, title2, x_title, y_title):
 # MARK:  Data Read
 
 def read_data(class_):
-    (train_images, train_labels), (test_images, test_labels) = datasets.cifar10.load_data()
-    # Normalize pixel values to be between 0 and 1
-    train_images, test_images = train_images / 255.0, test_images / 255.0
-    train_inds = np.where(train_labels == class_)[0]
-    test_inds = np.where(test_labels == class_)[0]
-    y_train = np_utils.to_categorical(train_labels, 10)
-    y_test = np_utils.to_categorical(test_labels, 10)
-    x_train = train_images[train_inds]
-    x_test = test_images[test_inds]
-    y_train = y_train[train_inds]
-    y_test = y_test[test_inds]
-    return  x_train, y_train, x_test, y_test
+    (mnist_x_train, mnist_y_train), (mnist_x_test, mnist_y_test) = mnist.load_data()
+    mnist_x_train, mnist_x_test = mnist_x_train / 255.0, mnist_x_test / 255.0
+    label_test = mnist_y_test
+    label_train = mnist_y_train
+    train_inds = np.where(label_train == class_)
+    test_inds = np.where(label_test == class_)
+    x_test = mnist_x_test[test_inds]
+    y_test = label_test[test_inds]
+    x_train = mnist_x_train[train_inds]
+    y_train = label_train[train_inds]
+    y_train = tf.keras.utils.to_categorical(y_train, 10)
+    y_test = tf.keras.utils.to_categorical(y_test, 10)
+    x_train = x_train.reshape(len(x_train), 784)
+    x_test = x_test.reshape(len(x_test), 784)
+    return x_train, y_train, x_test, y_test
 
 
 def read_all_data():
-    (train_images, train_labels), (test_images, test_labels) = datasets.cifar10.load_data()
-    # Normalize pixel values to be between 0 and 1
-    train_images, test_images = train_images / 255.0, test_images / 255.0
-    y_train = np_utils.to_categorical(train_labels, 10)
-    y_test = np_utils.to_categorical(test_labels, 10)
-    return  train_images, y_train, test_images, y_test
+    (mnist_x_train, mnist_y_train), (mnist_x_test, mnist_y_test) = mnist.load_data()
+    mnist_x_train, mnist_x_test = mnist_x_train / 255.0, mnist_x_test / 255.0
+    label_test = mnist_y_test
+    label_train = mnist_y_train
+    y_train = tf.keras.utils.to_categorical(mnist_y_train, 10)
+    y_test = tf.keras.utils.to_categorical(mnist_y_test, 10)
+    x_train = mnist_x_train.reshape(len(mnist_x_train), 784)
+    x_test = mnist_x_test.reshape(len(mnist_x_test), 784)
+    return x_train, y_train, x_test, y_test
+
 
 
 
@@ -88,41 +96,20 @@ def conv(X, f, strides=[1, 1, 1, 1], padding='VALID'):
 def conv2(X, f, strides=[1, 1, 1, 1], padding='SAME'):
     return tf.nn.conv2d(X, f, strides, padding, )
 
-def max_pool(X, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='VALID'):
+def max_pool(X, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME'):
     return tf.nn.max_pool(X, ksize, strides, padding)
 
-def max_pool2(X, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME'):
+def max_pool2(X, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='VALID'):
     return tf.nn.max_pool(X, ksize, strides, padding)
 
-def accuracy(logits, Y):
-    pred = tf.argmax(logits, axis=1)
-    truth = tf.argmax(Y, axis=1)
-    match = tf.cast(tf.equal(pred, truth), tf.float32)
-    acc = tf.reduce_mean(match, name='acc')
-    return acc
 
-def conv_layer(input, shape, layer, strides=[1, 1, 1, 1], output_layer=False, batch_norm=False, is_train=True):
+def dense(input, shape, layer, output_layer=False):
     W = var('W{0}'.format(layer), shape)
-    b = var('b{0}'.format(layer), [shape[-1]], tf.constant_initializer(0.1))
+    b = var('b{0}'.format(layer), [shape[1]], tf.constant_initializer(0.1))
     if not output_layer:
-        out = tf.nn.relu(conv(input, W, strides= strides) + b)
+        return tf.nn.relu(tf.matmul(input, W) + b)
     else:
-        out =  tf.nn.sigmoid(conv(input, W, strides= strides) + b)
-    if batch_norm:
-        out = tf.layers.batch_normalization(out, is_train)
-    return out
-
-
-def deconv_layer(input, filter_size, stride, kernel, output_layer=False, batch_norm=False, is_train=True):
-    out = tf.layers.conv2d_transpose(input, filter_size, stride, kernel, padding='valid')
-    if not output_layer:
-        out = tf.nn.relu(out)
-    else:
-        out = tf.nn.sigmoid(out)
-    if batch_norm:
-        out = tf.layers.batch_normalization(out, training=is_train)
-    return out
-
+        return tf.matmul(input, W) + b
 
 def dense_adv(input_org, input_gen, shape, layer, output_layer=False):
     W = var('W{0}'.format(layer), shape)
@@ -132,27 +119,19 @@ def dense_adv(input_org, input_gen, shape, layer, output_layer=False):
     else:
         return tf.matmul(input_org, W) + b, tf.matmul(input_gen, W) + b
 
-def conv_layer_adv(input_org, input_gen, shape, layer, strides=[1, 1, 1, 1], output_layer=False, batch_norm=False, is_train=True):
-    W = var('W{0}'.format(layer), shape)
-    b = var('b{0}'.format(layer), [shape[-1]], tf.constant_initializer(0.1))
-    if not output_layer:
-        out_org, out_gen = tf.nn.relu(conv(input_org, W, strides= strides) + b), tf.nn.relu(conv(input_gen, W, strides= strides) + b)
-    else:
-        out_org, out_gen =  tf.nn.sigmoid(conv(input_org, W, strides= strides) + b), tf.nn.sigmoid(conv(input_gen, W, strides= strides) + b)
-    if batch_norm:
-        out_org, out_gen = tf.layers.batch_normalization(out_org, is_train), tf.layers.batch_normalization(out_gen, is_train)
-    return out_org, out_gen
+def accuracy(logits, Y):
+    pred = tf.argmax(logits, axis=1)
+    truth = tf.argmax(Y, axis=1)
+    match = tf.cast(tf.equal(pred, truth), tf.float32)
+    acc = tf.reduce_mean(match, name='acc')
+    return acc
 
-def maxpool_layer_adv(input_org, input_gen):
-    return max_pool(input_org), max_pool(input_gen)
-
-def flatten_adv(input_org, input_gen, shape):
-    return tf.reshape(input_org, shape), tf.reshape(input_gen, shape)
 
 def load_dgn_robust_network():
     '''
     loads DGN robust network which trained by Goodfellow's adversarial training method
     '''
+
     if not os.path.exists('{0}/dgnRobustModel'.format(os.getcwd())):
         raise FileNotFoundError()
     else:
@@ -175,11 +154,44 @@ def dgn_robust_model_evaluate(x, y):
     sess, X, X_adv, Y, acc = load_dgn_robust_network()
     return sess.run(acc, feed_dict={X: x, X_adv: x, Y: y})
 
+def load_attack_robust_model(attack_type):
+    config = get_config()
+    if attack_type == 'pgd':
+        load_path = '../../OtherAttacks/robust_models/{0}/mnist/pgd_step{1}'.format(config['other_attacks_adv_training_type'], config['defense_pgd_step'])
+    else:
+        load_path = '../../OtherAttacks/robust_models/{0}/mnist/fgsm'.format(config['other_attacks_adv_training_type'])
+    if not os.path.exists(load_path):
+        raise FileNotFoundError()
+    else:
+        config = tf.ConfigProto()
+        sess = tf.Session(config=config)
+        graph = tf.get_default_graph()
+        saver = tf.train.import_meta_graph('{0}/{1}_robust.meta'.format(load_path, attack_type))
+        saver.restore(sess, tf.train.latest_checkpoint('{0}/'.format(load_path)))
+        # get tensors
+        X = graph.get_tensor_by_name('X:0')
+        X_adv = graph.get_tensor_by_name('X_adv:0')
+        Y = graph.get_tensor_by_name('Y:0')
+        acc = graph.get_tensor_by_name('acc:0')
+        # change directory back to main project folder
+        return sess, X, X_adv, Y, acc
+
+def evaluate_attack_robust_model(x, y, attack_type):
+    sess, X, X_adv, Y, acc = load_attack_robust_model(attack_type)
+    return sess.run(acc, feed_dict={X: x, X_adv: x, Y: y})
+
+def get_config():
+    base_dir = os.path.dirname(__file__)
+    # read configuration file
+    with open('{0}/config.json'.format(base_dir)) as config_file:
+        config = json.load(config_file)
+    return config
+
 def gather_cols(params, indices, name=None):
     """Gather columns of a 2D tensor.
     Args:
         params: A 2D tensor.
-        indices: A 1D tensor. Mgaust be one of the following types: ``int32``, ``int64``.
+        indices: A 1D tensor. Must be one of the following types: ``int32``, ``int64``.
         name: A name for the operation (optional).
 
     Returns:
@@ -207,19 +219,18 @@ def gather_cols(params, indices, name=None):
                           [p_shape[0], -1])
 
 
+
 def save_dgn_network(class_, saver, session):
     if not os.path.exists('Models/{0}'.format(class_)):
         try:
             os.makedirs('Models/{0}'.format(class_))
         except OSError as err:
-            print('[Helpers]: {0}'.format(err))
+            logging.error('[Helpers]: Error when saving DGN network: {0}'.format(err))
     try:
         saver.save(session, 'Models/{0}/generator_net_{0}'.format(class_))
-        print('DGN network is successfully saved.')
+        logging.info('[Helpers]: DGN network is successfully saved.')
     except Exception as err:
-        print('[Helpers]: {0}'.format(err))
-
-
+        logging.error('[Helpers]: Error when saving DGN network: {0}'.format(err))
 
 
 
@@ -234,19 +245,10 @@ def clip_pixels(original_image, generated_image, eps):
         diff_value = diff[i]
         diff_abs = abs(diff_value)
         if diff_abs > eps and diff_value > 0.0:
-            #print('Clipped diff: {0} to {1}'.format(
-            #     diff_value, eps
-            #))
-            #diff[i] = -eps
             diff[i] = eps
         elif diff_abs > eps and diff_value < 0.0:
-            #print('Clipped diff: {0} to {1}'.format(
-            #    diff_value, -eps
-            #))
-            #diff[i]= eps
-            diff[i] = -eps
+            diff[i]= -eps
         else:
-            #print('else case:  diff_abs: {0},  diff_value: {1}'.format(diff_abs, diff_value))
             pass  # do nothing
     # return np.add(original_image, diff)
     return original_image - diff
@@ -323,6 +325,23 @@ def L_inf(im1, im2):
     return l_inf
 
 
+
+
+# MARK: os helpers
+
+def remove_model_files(class_no):
+    folder_path = '{0}/Models/{1}'.format(os.getcwd(), class_no)
+    for filename in os.listdir(folder_path):
+        file_path = os.path.join(folder_path, filename)
+        try:
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+        except Exception as e:
+            logging.error('Removing model folder is failed due to the following reason: {0}'.format(e))
+
+
 # MARK: model helpers
 def load_model(model_name):
     with open('{0}.json'.format(model_name), 'r') as f:
@@ -374,55 +393,32 @@ def get_layer_type(model, layer_no):
     layer_config = config[layer_no]
     return layer_config['class_name']
 
-def get_config():
-    base_dir = os.path.dirname(__file__)
-    # read configuration file
-    with open('{0}/config.json'.format(base_dir)) as config_file:
-        config = json.load(config_file)
-    return config
+def get_total_number_of_neurons(model, include_output_layer):
+    num_layers = len(model.layers)
+    total_num_of_neurons = 0
+    for layer_index in range(num_layers):
+        layer = model.layers[layer_index]
+        # since we multiply layer output dimensions, initial value is set to 1.
+        num_neurons_in_layer = 1
+        for i in range(1, len(layer.output.shape)):
+            try:
+                # when it is a valid layer to count neurons, an output dimension of the layer can be convertible to int.
+                num_neurons_in_layer *= int(layer.output.shape[i])
+            except Exception:
+                # if the output dimension of layer cannot be convertible to int,
+                # just pass that layer since it is not a valid layer to count neurons
+                pass
+        # if num_neurons_in_layer is not still 1, it means we have a valid layer to count neurons
+        if not num_neurons_in_layer == 1:
+            # when it is an output layer
+            if layer_index == (num_layers - 1):
+                if include_output_layer:
+                    total_num_of_neurons += num_neurons_in_layer
 
-def load_attack_robust_model(attack_type):
-    config = get_config()
-    if attack_type == 'pgd':
-        load_path = '../../OtherAttacks/robust_models/{0}/cifar/pgd_step{1}'.format(config['other_attacks_adv_training_type'], config['defense_pgd_step'])
-    else:
-        load_path = '../../OtherAttacks/robust_models/{0}/cifar/fgsm'.format(config['other_attacks_adv_training_type'])
-    if not os.path.exists(load_path):
-        raise FileNotFoundError()
-    else:
-        config = tf.ConfigProto()
-        sess = tf.Session(config=config)
-        graph = tf.get_default_graph()
-        saver = tf.train.import_meta_graph('{0}/{1}_robust.meta'.format(load_path, attack_type))
-        saver.restore(sess, tf.train.latest_checkpoint('{0}/'.format(load_path)))
-        # get tensors
-        X = graph.get_tensor_by_name('X:0')
-        X_adv = graph.get_tensor_by_name('X_adv:0')
-        Y = graph.get_tensor_by_name('Y:0')
-        acc = graph.get_tensor_by_name('acc:0')
-        # change directory back to main project folder
-        return sess, X, X_adv, Y, acc
-
-def evaluate_attack_robust_model(x, y, attack_type):
-    sess, X, X_adv, Y, acc = load_attack_robust_model(attack_type)
-    return sess.run(acc, feed_dict={X: x, X_adv: x, Y: y})
+            else:  # when it is not an output layer
+                total_num_of_neurons += num_neurons_in_layer
+    return total_num_of_neurons
 
 
-# MARK: relevancy
-
-def relevant_pixels(for_class, k = 20):
-    '''
-    :param for_digit:  the digit for which relevant pixels will be used.
-    :param k: the number of relevant pixels used.
-    :return: the list of relevant pixels.
-    '''
-    with open('relevant_pixels/relevant_pixels_cifar{0}.pkl'.format(k), 'rb') as f:
-        all_relevant_pixels = pickle.load(f)
-    return list(all_relevant_pixels[for_class])
 
 
-def non_relevant_pixels(for_class, k = 20):
-    normal_pixel_list = list(range(3072))
-    for px in relevant_pixels(for_class= for_class, k= k):
-        normal_pixel_list.remove(px)
-    return normal_pixel_list

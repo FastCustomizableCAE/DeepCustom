@@ -406,23 +406,3 @@ def load_attack_robust_model(attack_type):
 def evaluate_attack_robust_model(x, y, attack_type):
     sess, X, X_adv, Y, acc = load_attack_robust_model(attack_type)
     return sess.run(acc, feed_dict={X: x, X_adv: x, Y: y})
-
-
-# MARK: relevancy
-
-def relevant_pixels(for_class, k = 20):
-    '''
-    :param for_digit:  the digit for which relevant pixels will be used.
-    :param k: the number of relevant pixels used.
-    :return: the list of relevant pixels.
-    '''
-    with open('relevant_pixels/relevant_pixels_cifar{0}.pkl'.format(k), 'rb') as f:
-        all_relevant_pixels = pickle.load(f)
-    return list(all_relevant_pixels[for_class])
-
-
-def non_relevant_pixels(for_class, k = 20):
-    normal_pixel_list = list(range(3072))
-    for px in relevant_pixels(for_class= for_class, k= k):
-        normal_pixel_list.remove(px)
-    return normal_pixel_list

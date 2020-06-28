@@ -1,7 +1,6 @@
 import tensorflow as tf
 import numpy as np
 from Helpers import *
-from OriginalNetwork import *
 
 # MARK: Prerequisites for custom loss
 

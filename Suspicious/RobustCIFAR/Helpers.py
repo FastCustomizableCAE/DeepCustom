@@ -1,20 +1,18 @@
 import tensorflow as tf
 import numpy as np
-from OriginalNetwork import *
 from matplotlib import pyplot as plt
 import matplotlib as mpl
 import random
 import math
-#from emnist import extract_training_samples
 from keras import datasets, layers, models
 from keras.utils import np_utils
 from keras import backend as K
 from keras.models import  model_from_json
-#import emnist
 from keras.datasets import mnist
 import pickle
 import json
 from suspicious_detection import Neuron
+from OriginalNetwork import *
 
 
 
@@ -152,18 +150,18 @@ def maxpool_layer_adv(input_org, input_gen):
 def flatten_adv(input_org, input_gen, shape):
     return tf.reshape(input_org, shape), tf.reshape(input_gen, shape)
 
-def load_ign_robust_network():
+def load_dgn_robust_network():
     '''
-    loads IGN robust network which trained by Goodfellow's adversarial training method
+    loads DGN robust network which trained by Goodfellow's adversarial training method
     '''
-    if not os.path.exists('Evaluation/ign_robust_model'):
+    if not os.path.exists('{0}/dgnRobustModel'.format(os.getcwd())):
         raise FileNotFoundError()
     else:
-        os.chdir('Evaluation/ign_robust_model')
+        os.chdir('{0}/dgnRobustModel'.format(os.getcwd()))
         config = tf.ConfigProto()
         sess = tf.Session(config=config)
         graph = tf.get_default_graph()
-        saver = tf.train.import_meta_graph('ign_robust.meta')
+        saver = tf.train.import_meta_graph('dgn_robust_model.meta')
         saver.restore(sess, tf.train.latest_checkpoint('./'))
         # get tensors
         X = graph.get_tensor_by_name('X:0')
@@ -171,11 +169,11 @@ def load_ign_robust_network():
         Y = graph.get_tensor_by_name('Y:0')
         acc = graph.get_tensor_by_name('acc:0')
         # change directory back to main project folder
-        os.chdir('../../..')
+        os.chdir('..')
         return sess, X, X_adv, Y, acc
 
-def ign_robust_model_evaluate(x, y):
-    sess, X, X_adv, Y, acc = load_ign_robust_network()
+def dgn_robust_model_evaluate(x, y):
+    sess, X, X_adv, Y, acc = load_dgn_robust_network()
     return sess.run(acc, feed_dict={X: x, X_adv: x, Y: y})
 
 
@@ -210,17 +208,17 @@ def gather_cols(params, indices, name=None):
         return tf.reshape(tf.gather(p_flat, i_flat),
                           [p_shape[0], -1])
 
-def save_ign_network(class_, saver, session):
+def save_dgn_network(class_, saver, session):
     if not os.path.exists('Models/{0}'.format(class_)):
         try:
             os.makedirs('Models/{0}'.format(class_))
         except OSError as err:
-            print('[save_ign_network]: {0}'.format(err))
+            print('[Helpers]: {0}'.format(err))
     try:
         saver.save(session, 'Models/{0}/generator_net_{0}'.format(class_))
-        print('IGN network is successfully saved.')
+        print('DGN network is successfully saved.')
     except Exception as err:
-        print('[save_ign_network]: {0}'.format(err))
+        print('[Helpers]: {0}'.format(err))
 
 
 
@@ -376,8 +374,9 @@ def get_layer_type(model, layer_no):
     return layer_config['class_name']
 
 def get_config():
+    base_dir = os.path.dirname(__file__)
     # read configuration file
-    with open('config.json') as config_file:
+    with open('{0}/config.json'.format(base_dir)) as config_file:
         config = json.load(config_file)
     return config
 

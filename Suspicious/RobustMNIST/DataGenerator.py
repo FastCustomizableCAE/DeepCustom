@@ -43,7 +43,7 @@ class DataGenerator():
         x, y, _, _ = read_data(class_=self.class_)
         if self.data_type == 'test':
             _, _, x, y = read_data(class_=self.class_)
-        generated_data = self.generate_data_using_IGN(class_= self.class_, x= x)
+        generated_data = self.generate_data_using_DGN(class_= self.class_, x= x)
         # ensure pixel values are in between 0 and 1
         np.clip(generated_data, 0.0, 1.0, out=generated_data)
         if self.mis_classification_check:
@@ -73,7 +73,7 @@ class DataGenerator():
                 _, _, x_c, y_c = read_data(class_=class_)
             labels = list(map(lambda x: np.argmax(x), y))
             class_indices = np.where(np.array(labels) == class_)
-            generated_data = self.generate_data_using_IGN(class_= class_, x=x_c)
+            generated_data = self.generate_data_using_DGN(class_= class_, x=x_c)
             # ensure pixel values are in between 0 and 1
             np.clip(generated_data, 0.0, 1.0, out=generated_data)
             all_generated_data[class_indices] = generated_data
@@ -102,7 +102,7 @@ class DataGenerator():
         return mis_classified_original_samples, mis_classified_generated_samples, mis_classified_target
 
 
-    def generate_data_using_IGN(self, class_, x):
+    def generate_data_using_DGN(self, class_, x):
         sess, X, is_train, logits = self.load_generator_network(class_=class_)
         x = x.reshape((len(x), 28, 28, 1))
         feed = {X: x, is_train: False}
@@ -121,9 +121,9 @@ class DataGenerator():
 
     def load_generator_network(self, class_):
         # TODO: check for path existence
-        # change directory to load IGN model for given class
+        # change directory to load DGN model for given class
         os.chdir('Models/{0}/'.format(class_))
-        # read IGN model
+        # read DGN model
         meta_path = 'generator_net_{0}.meta'.format(class_)
         config = tf.ConfigProto()
         sess = tf.Session(config=config)
@@ -134,7 +134,7 @@ class DataGenerator():
         X = graph.get_tensor_by_name("Placeholder:0")
         is_train = graph.get_tensor_by_name("is_train:0")
         logits = graph.get_tensor_by_name("Sigmoid:0")
-        logging.info('[DataGenerator]: IGN model is loaded from the following path: {0}'.format(os.getcwd()))
+        logging.info('[DataGenerator]: DGN model is loaded from the following path: {0}'.format(os.getcwd()))
         # change directory back to main project folder
         os.chdir('../..')
         return sess, X, is_train, logits

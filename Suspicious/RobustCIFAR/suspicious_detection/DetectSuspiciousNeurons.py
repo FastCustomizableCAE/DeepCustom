@@ -3,7 +3,6 @@ from suspicious_detection.DenseLayer import DenseLayer as DL
 from suspicious_detection.FeatureMap import FeatureMap
 from suspicious_detection.Layer import Layer
 from suspicious_detection.Neuron import Neuron
-from OriginalNetwork import *
 from Helpers import *
 import tensorflow as tf
 import numpy as np

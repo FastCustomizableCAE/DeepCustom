@@ -4,10 +4,8 @@ from matplotlib import pyplot as plt
 import matplotlib as mpl
 import random
 import math
-#from emnist import extract_training_samples
 from keras import datasets, layers, models
 from keras.utils import np_utils
-# import emnist
 from keras.datasets import mnist
 from keras.models import model_from_json
 from keras import backend as K
@@ -129,19 +127,19 @@ def accuracy(logits, Y):
     return acc
 
 
-def load_ign_robust_network():
+def load_dgn_robust_network():
     '''
-    loads IGN robust network which trained by Goodfellow's adversarial training method
+    loads DGN robust network which trained by Goodfellow's adversarial training method
     '''
 
-    if not os.path.exists('Evaluation/ign_robust_model'):
+    if not os.path.exists('{0}/dgnRobustModel'.format(os.getcwd())):
         raise FileNotFoundError()
     else:
-        os.chdir('Evaluation/ign_robust_model')
+        os.chdir('{0}/dgnRobustModel'.format(os.getcwd()))
         config = tf.ConfigProto()
         sess = tf.Session(config=config)
         graph = tf.get_default_graph()
-        saver = tf.train.import_meta_graph('ign_robust.meta')
+        saver = tf.train.import_meta_graph('dgn_robust_model.meta')
         saver.restore(sess, tf.train.latest_checkpoint('./'))
         # get tensors
         X = graph.get_tensor_by_name('X:0')
@@ -149,11 +147,11 @@ def load_ign_robust_network():
         Y = graph.get_tensor_by_name('Y:0')
         acc = graph.get_tensor_by_name('acc:0')
         # change directory back to main project folder
-        os.chdir('../../..')
+        os.chdir('..')
         return sess, X, X_adv, Y, acc
 
-def ign_robust_model_evaluate(x, y):
-    sess, X, X_adv, Y, acc = load_ign_robust_network()
+def dgn_robust_model_evaluate(x, y):
+    sess, X, X_adv, Y, acc = load_dgn_robust_network()
     return sess.run(acc, feed_dict={X: x, X_adv: x, Y: y})
 
 def load_attack_robust_model(attack_type):
@@ -183,8 +181,9 @@ def evaluate_attack_robust_model(x, y, attack_type):
     return sess.run(acc, feed_dict={X: x, X_adv: x, Y: y})
 
 def get_config():
+    base_dir = os.path.dirname(__file__)
     # read configuration file
-    with open('config.json') as config_file:
+    with open('{0}/config.json'.format(base_dir)) as config_file:
         config = json.load(config_file)
     return config
 
@@ -221,17 +220,17 @@ def gather_cols(params, indices, name=None):
 
 
 
-def save_ign_network(class_, saver, session):
+def save_dgn_network(class_, saver, session):
     if not os.path.exists('Models/{0}'.format(class_)):
         try:
             os.makedirs('Models/{0}'.format(class_))
         except OSError as err:
-            logging.error('[Helpers]: Error when saving IGN network: {0}'.format(err))
+            logging.error('[Helpers]: Error when saving DGN network: {0}'.format(err))
     try:
         saver.save(session, 'Models/{0}/generator_net_{0}'.format(class_))
-        logging.info('[Helpers]: IGN network is successfully saved.')
+        logging.info('[Helpers]: DGN network is successfully saved.')
     except Exception as err:
-        logging.error('[Helpers]: Error when saving IGN network: {0}'.format(err))
+        logging.error('[Helpers]: Error when saving DGN network: {0}'.format(err))
 
 
 

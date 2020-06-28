@@ -4,7 +4,7 @@
 
   "model_name" : "mnist_5x30",
 
-  "_comment*" : "===== Image Generator Network Configurations =====",
+  "_comment*" : "===== Data Generator Network Configurations =====",
 
   "learning_rate" : 1e-4,
   "decay_step" : 1000,

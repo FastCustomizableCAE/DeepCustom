@@ -2,8 +2,7 @@
 
   "_comment" : "===== General Configurations =====",
 
-  "model_name" : "cifar_keras",
-
+  "model_name" : "mnist_5x30",
 
   "_comment*" : "===== Data Generator Network Configurations =====",
 
@@ -11,41 +10,32 @@
   "decay_step" : 1000,
   "decay_rate" : 0.90,
   "momentum" : 0.9,
-  "num_training_steps" : 5000,
   "batch_size" : 100,
-  "num_epochs" : 80,
+  "num_epochs" : 100,
   "weight_decay" : 1e-4,
   "custom_loss_constant" : 0.5,
   "num_classes": 10,
 
   "_comment***" : "===== Generation Configurations =====",
 
-  "epsilon" : 0.0313,
+  "epsilon" : 0.3,
   "mis_classification_check" : false,
   "clipping" : true,
 
-  "_comment**" : "===== Relevancy Configurations =====",
-
-  "class" : 0,
-  "k" : 80,
-  "activation_threshold" : 0.0,
-
-
-
   "_comment****" : "===== Adversarial Train  =====",
 
-  "adv_num_epochs" : 100,
+  "adv_num_epochs" : 10,
   "adv_batch_size" : 100,
-  "adv_learning_rate" : 1e-4,
+  "adv_learning_rate" : 1e-3,
   "adv_decay_step" : 1000,
   "adv_decay_rate" : 0.90,
   "adv_momentum" : 0.9,
   "adv_weight_decay" : 1e-4,
 
-  "_comment*****" : "===== Evaluation  =====",
+    "_comment*****" : "===== Evaluation  =====",
 
   "attack_pgd_step": 1,
-  "defense_pgd_step": 1,
+  "defense_pgd_step": 20,
   "other_attacks_adv_training_type": "gf"
 
 }

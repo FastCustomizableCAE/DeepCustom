@@ -21,7 +21,7 @@ if __name__ == '__main__':
     logging.info('[generate_data]: Configurations are loaded.')
 
 
-    # generate training data using IGNs
+    # generate training data using DGNs
     dg = DataGenerator(original_model_name=model_name,
                        data_type='training',
                        num_classes=num_classes,
@@ -33,7 +33,7 @@ if __name__ == '__main__':
     dg.generate_data()
 
 
-    # generate test data using IGNs
+    # generate test data using DGNs
     dg = DataGenerator(original_model_name=model_name,
                        data_type='test',
                        num_classes=num_classes,
