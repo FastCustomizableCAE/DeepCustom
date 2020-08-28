@@ -12,9 +12,9 @@ Each of six CAE based adversarial data generation project, has same Python scrip
 * `CustomLosses.py` : contains custom loss function that will be used as the loss function of DGN models
 * `train.py` :  trains DGN models and save them into automatically generated Models folder.
 * `generate_data.py` : generates adversarial training and adversarial test data using DGN models
-* `adversarial_train.py` : applies adversarial training using DGN generated adversarial training data 
-* `evaluateDGNRobust.py` : evaluates DGN robust model obtained after adversarial training
-* `evaluate.py` : evaluates other robust models against eachother and against DGN attacks
+* `adversarial_train_goodfellow.py` : applies adversarial training using DGN generated adversarial training data 
+* `Evaluation/evaluateGoodfellowAT.py` : evaluates DGN robust model obtained after adversarial training
+* `Evaluation/evaluate2.py` : evaluates other robust models against eachother and against DGN attacks
 
 
 ## Configurations
@@ -76,10 +76,10 @@ For LRP,
 
 
 For NCE,
-* put **Additional Files/NCE/MNIST/Models** into **DeepCustom/NCE/RobustMNIST**
-* put **Additional Files/NCE/MNIST/ign_robust_model** into **DeepCustom/NCE/RobustMNIST/Evaluation**
-* put **Additional Files/NCE/CIFAR/Models** into **DeepCustom/NCE/RobustCIFAR**
-* put **Additional Files/NCE/CIFAR/ign_robust_model** into **DeepCustom/NCE/RobustCIFAR/Evaluation**
+* put **Additional Files/NCE/MNIST/Models** into **DeepCustom/OriginalLoss/RobustMNIST**
+* put **Additional Files/NCE/MNIST/ign_robust_model** into **DeepCustom/OriginalLoss/RobustMNIST/Evaluation**
+* put **Additional Files/NCE/CIFAR/Models** into **DeepCustom/OriginalLoss/RobustCIFAR**
+* put **Additional Files/NCE/CIFAR/ign_robust_model** into **DeepCustom/OriginalLoss/RobustCIFAR/Evaluation**
 
 
 For Suspiciousness,
@@ -116,17 +116,17 @@ You can use Anaconda or Pip to create a virtual environments using `requirements
 
 * After generating adversarial training and test data, you can run the following command to apply adversarial training technique offered in [1] to obtain a robust network (DGN-Robust network) which has the same architecture as the target model:
 
-    `python adversarial_train.py`
+    `python adversarial_training_goodfellow.py`
 
 **Evaluating DGN-Robust, FGSM-Robust and PGD-Robust Networks**
 
 * To evaluate DGN-Robust network, you can run the following command inside **Evalution** folder:
 
-    `python evaluateDGNRobust.py`
+    `python evaluteGoodfellowAT.py`
 
 * To evaluate FGSM and PGD robust networks and target model against FGSM, PGD and DGN generated adversarial test samples, run the following command inside **Evaluation** folder:
 
-    `python evaluate.py`
+    `python evalute2.py`
 
 
 [1] Ian Goodfellow, Jonathon Shlens, and Christian Szegedy. Explaining and harnessing adversarial examples. In International Conference on Learning Representations, 2015.
@@ -177,3 +177,28 @@ Adversarial Training Configurations
 After setting desired configurations, you can run the code using following command:
 
 `python Main.py`
+
+
+## Training Configurations
+
+
+### DGN Training Configurations 
+
+<br/>
+
+<img src="https://github.com/FastCustomizableCAE/DeepCustom/blob/master/resources/tables/dgn_training_table.PNG?raw=true" alt="drawing" width="400"/>
+
+
+The table above shows training configurations of DGN models. All training parameters are determined experimentally to avoid training problems (e.g. underfitting, overfitting). All models use Adam optimizer and learning rate decay.
+
+### Adversarial Training Configurations 
+
+<br/>
+
+<img src="https://github.com/FastCustomizableCAE/DeepCustom/blob/master/resources/tables/dgn_adversarial_training_table.PNG?raw=true" alt="drawing" width="400"/>
+
+The table above shows training parameters of DGN adversarial training. Similar to DGN training configurations, training parameters are determined experimentally to overcome training challenges.
+
+<img src="https://github.com/FastCustomizableCAE/DeepCustom/blob/master/resources/tables/other_attacks_adversarial_training_table.PNG?raw=true" alt="drawing" width="400"/>
+
+The table above shows training parameters of FGSM and PGD adversarial trainings. The same training parameters are applied to all PGD attacks with different step sizes and random initializations.
