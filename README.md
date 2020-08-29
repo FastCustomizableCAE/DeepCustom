@@ -1,4 +1,4 @@
-# Improving Robustness of Deep Learning Systems with Fast and Customizable Adversarial Data Generation
+# Fast and Customizable Adversarial Data Generation Using Convolutional Autoencoders
 
 For any questions, please contact via email: deepCustomCAE@gmail.com.
 
@@ -12,9 +12,9 @@ Each of six CAE based adversarial data generation project, has same Python scrip
 * `CustomLosses.py` : contains custom loss function that will be used as the loss function of DGN models
 * `train.py` :  trains DGN models and save them into automatically generated Models folder.
 * `generate_data.py` : generates adversarial training and adversarial test data using DGN models
-* `adversarial_train_goodfellow.py` : applies adversarial training using DGN generated adversarial training data 
-* `Evaluation/evaluateGoodfellowAT.py` : evaluates DGN robust model obtained after adversarial training
-* `Evaluation/evaluate2.py` : evaluates other robust models against eachother and against DGN attacks
+* `adversarial_train.py` : applies adversarial training using DGN generated adversarial training data 
+* `evaluateDGNRobust.py` : evaluates DGN robust model obtained after adversarial training
+* `evaluate.py` : evaluates other robust models against eachother and against DGN attacks
 
 
 ## Configurations
@@ -76,10 +76,10 @@ For LRP,
 
 
 For NCE,
-* put **Additional Files/NCE/MNIST/Models** into **DeepCustom/OriginalLoss/RobustMNIST**
-* put **Additional Files/NCE/MNIST/ign_robust_model** into **DeepCustom/OriginalLoss/RobustMNIST/Evaluation**
-* put **Additional Files/NCE/CIFAR/Models** into **DeepCustom/OriginalLoss/RobustCIFAR**
-* put **Additional Files/NCE/CIFAR/ign_robust_model** into **DeepCustom/OriginalLoss/RobustCIFAR/Evaluation**
+* put **Additional Files/NCE/MNIST/Models** into **DeepCustom/NCE/RobustMNIST**
+* put **Additional Files/NCE/MNIST/ign_robust_model** into **DeepCustom/NCE/RobustMNIST/Evaluation**
+* put **Additional Files/NCE/CIFAR/Models** into **DeepCustom/NCE/RobustCIFAR**
+* put **Additional Files/NCE/CIFAR/ign_robust_model** into **DeepCustom/NCE/RobustCIFAR/Evaluation**
 
 
 For Suspiciousness,
@@ -116,17 +116,17 @@ You can use Anaconda or Pip to create a virtual environments using `requirements
 
 * After generating adversarial training and test data, you can run the following command to apply adversarial training technique offered in [1] to obtain a robust network (DGN-Robust network) which has the same architecture as the target model:
 
-    `python adversarial_training_goodfellow.py`
+     `python adversarial_train.py`
 
 **Evaluating DGN-Robust, FGSM-Robust and PGD-Robust Networks**
 
 * To evaluate DGN-Robust network, you can run the following command inside **Evalution** folder:
 
-    `python evaluteGoodfellowAT.py`
+    `python evaluateDGNRobust.py`
 
 * To evaluate FGSM and PGD robust networks and target model against FGSM, PGD and DGN generated adversarial test samples, run the following command inside **Evaluation** folder:
 
-    `python evalute2.py`
+    `python evaluate.py`
 
 
 [1] Ian Goodfellow, Jonathon Shlens, and Christian Szegedy. Explaining and harnessing adversarial examples. In International Conference on Learning Representations, 2015.
