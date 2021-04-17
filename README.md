@@ -224,11 +224,11 @@ Figure above shows DGN architecture for CIFAR dataset. The architecture is deepe
 
 ## Target Model Architectures
 
-**MNIST target model.** The model is a fully-connected dense network which consists of five dense layers with ReLU activations where each layer contains 30 neurons. The final output layer has 10 neurons. The model has 160 neurons and 27580 trainable parameters in total. The test accuracy of the model is $96.56\%$.
+**MNIST target model.** The model is a fully-connected dense network which consists of five dense layers with ReLU activations where each layer contains 30 neurons. The final output layer has 10 neurons. The model has 160 neurons and 27580 trainable parameters in total. The test accuracy of the model is 96.56%.
 
-**CIFAR target model.** The model is a convolutional neural network, which contains three convolutional and two dense layers. Convolutional layers use 3x3 filters with stride 1 and no padding. There are MaxPool layers with 2x2 pool size after first two convolutional layers. After convolutional layers, there is a dense layer with 64 neurons and a final output layer with 10 neurons. ReLU activations are used in convolutional and dense layers. The model has 122570 trainable parameters in total and achieves $70.75\%$ test set accuracy.
+**CIFAR target model.** The model is a convolutional neural network, which contains three convolutional and two dense layers. Convolutional layers use 3x3 filters with stride 1 and no padding. There are MaxPool layers with 2x2 pool size after first two convolutional layers. After convolutional layers, there is a dense layer with 64 neurons and a final output layer with 10 neurons. ReLU activations are used in convolutional and dense layers. The model has 122570 trainable parameters in total and achieves 70.75% test set accuracy.
 
-**Target Model Training Configurations.** The Adam optimizer with learning rate $1e-3$ is used in the training of both target models. MNIST target model is trained with 20 epochs and batch size 128, while an epoch size of 10 with batch size 32 is used for the training of CIFAR target model.
+**Target Model Training Configurations.** The Adam optimizer with learning rate 1e-3 is used in the training of both target models. MNIST target model is trained with 20 epochs and batch size 128, while an epoch size of 10 with batch size 32 is used for the training of CIFAR target model.
 
 
 ## Training Configurations
